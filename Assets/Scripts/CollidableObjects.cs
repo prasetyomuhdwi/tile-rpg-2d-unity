@@ -31,6 +31,6 @@ public class CollidableObjects : MonoBehaviour
 
     protected virtual void OnCollided(Collider2D collided)
     {
-        Debug.Log(collided.name);
+        Debug.Log("Master "+collided.name);
     }
 }
