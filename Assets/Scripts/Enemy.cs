@@ -33,14 +33,6 @@ public class Enemy : Movement
 
     }
 
-    protected override void UpdateMovement(Vector3 input)
-    {
-        base.UpdateMovement(input);
-
-        bool isRun = moveDelta.magnitude > 0;
-        enemyAnimator.SetBool("isRun", isRun);
-    }
-
     protected void FixedUpdate()
     {
         // Is the player in range?
@@ -69,6 +61,8 @@ public class Enemy : Movement
             chasing = false;
         }
 
+        enemyAnimator.SetBool("isRun", chasing);
+
         // Check for overlaps
         collidingWithPlayer = false;
         hitBox.OverlapCollider(filter, hits);
@@ -82,7 +76,7 @@ public class Enemy : Movement
                 collidingWithPlayer = true;
             }
 
-            // the array is not cleanedup, so we doit ourself
+            // the array is not cleanedup, so we do it ourself
             hits[i] = null;
         }
     }
@@ -90,7 +84,7 @@ public class Enemy : Movement
     protected override void Death()
     {
         Destroy(gameObject);
-        GameManager.instance.experience += xpValue;
+        GameManager.instance.GrantXp(xpValue);
         GameManager.instance.ShowText("+ " + xpValue + " xp", 30, Color.magenta, transform.position, Vector3.up * 40, 1.0f);
     }
 }

@@ -162,9 +162,9 @@ TextureImporter:
       rect:
         serializedVersion: 2
         x: 25
-        y: 278
-        width: 22
-        height: 4
+        y: 268
+        width: 21
+        height: 7
       alignment: 0
       pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -187,7 +187,7 @@ TextureImporter:
         width: 11
         height: 8
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
@@ -195,6 +195,27 @@ TextureImporter:
       bones: []
       spriteID: 0e1f703b2c1db7345bffffc4b1130d6a
       internalID: -321564200
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: bar_alt
+      rect:
+        serializedVersion: 2
+        x: 24
+        y: 267
+        width: 23
+        height: 9
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 60926e3f312c8e64ca9098483d0a50e5
+      internalID: -1344423742
       vertices: []
       indices: 
       edges: []
@@ -210,6 +231,7 @@ TextureImporter:
     weights: []
     secondaryTextures: []
     nameFileIdTable:
+      bar_alt: -1344423742
       Menu: -321564200
       background: 2143227591
       bar: 1672604677

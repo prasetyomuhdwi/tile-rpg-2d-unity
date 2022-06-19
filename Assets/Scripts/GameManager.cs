@@ -29,7 +29,9 @@ public class GameManager : MonoBehaviour
 
     // References
     public Player player;
+    public Weapon weapon;
     public FloatingTextManager FloatingTextManager;
+    
 
     // Logic
     public int coin;
@@ -41,6 +43,69 @@ public class GameManager : MonoBehaviour
         FloatingTextManager.Show(msg, fontSize, color, position, motion, duration);
     }
 
+    // Weapon Upgrade
+    public bool TryUpgradeWeapon()
+    {
+        // is the weapon max level?
+        if (weaponPrices.Count <= weapon.weaponLevel)
+            return false;
+
+        if (coin >= weaponPrices[weapon.weaponLevel])
+        {
+            coin -= weaponPrices[weapon.weaponLevel];
+            weapon.UpgradeWeapon();
+            return true;
+        }
+        return false;   
+    }
+
+    // Experience System
+    public int GetCurrentLevel()
+    {
+        int r = 0;
+        int add = 0;
+
+        while (experience >= add)
+        {
+            add += xpTable[r];
+            r++;
+
+            if(r == xpTable.Count) // Max Lavel
+            {
+                return r;
+            }
+        }
+        return r;
+    }
+
+    public int GetXpToLevel(int level)
+    {
+        int r = 0;
+        int xp = 0;
+
+        while (r < level)
+        {
+            xp += xpTable[r];
+            r++;
+        }
+
+        return xp;
+    }
+
+    public void GrantXp(int xp)
+    {
+        int currLevel = GetCurrentLevel();
+        experience += xp;
+        if(currLevel < GetCurrentLevel())
+        {
+            OnLevelUp();
+        }
+    }
+
+    public void OnLevelUp()
+    {
+        player.OnLevelUp();
+    }
 
     /* Save State
      *
@@ -56,7 +121,7 @@ public class GameManager : MonoBehaviour
         s += "0" + "|";
         s += coin.ToString() + "|";
         s += experience.ToString() + "|";
-        s += "0";
+        s += weapon.weaponLevel.ToString();
 
         PlayerPrefs.SetString("SaveState", s);
     }
@@ -68,12 +133,19 @@ public class GameManager : MonoBehaviour
 
         string[] data = PlayerPrefs.GetString("SaveState").Split('|');
 
-        // ~Change player skin~
+        // Change player skin
+        
+        // Coin
         coin = int.Parse(data[1]);
+        
+        // Exp & Level
         experience = int.Parse(data[2]);
-        // ~Change weapon level~
+        if(GetCurrentLevel() == 1)
+            player.SetLevel(GetCurrentLevel());
+        
+        // Weapon
+        weapon.weaponLevel = int.Parse(data[3]);
 
-
-        Debug.Log("Load Game");
+        player.transform.position = GameObject.Find("SpawnPoint").transform.position;
     }
 }

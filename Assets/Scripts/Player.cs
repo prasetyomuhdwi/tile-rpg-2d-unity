@@ -4,20 +4,16 @@ using UnityEngine;
 
 public class Player : Movement
 {
-    public Animator playerAnimator;
+    private Animator playerAnimator;
+    private SpriteRenderer spriteRenderer;
 
     protected override void Start()
     {
         base.Start();
+        spriteRenderer = GetComponent<SpriteRenderer>();
         playerAnimator = GetComponent<Animator>();
-    }
-
-    protected override void UpdateMovement(Vector3 input)
-    {
-        base.UpdateMovement(input);
-
-        bool isRun = moveDelta.magnitude > 0;
-        playerAnimator.SetBool("isRun", isRun);
+        
+        DontDestroyOnLoad(gameObject);
     }
 
     protected override void ReceiveDamage(Damage dmg)
@@ -50,7 +46,31 @@ public class Player : Movement
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveY = Input.GetAxisRaw("Vertical");
 
+        if(Mathf.Abs(moveX) > 0 || Mathf.Abs(moveY) > 0)
+            playerAnimator.SetBool("isRun", true);
+        else
+            playerAnimator.SetBool("isRun", false);
+
+
         UpdateMovement(new Vector3(moveX, moveY, 0));
     }
 
+    public void SwapSprite(int skinId)
+    {
+        spriteRenderer.sprite = GameManager.instance.playerSprites[skinId];
+    }
+
+    public void OnLevelUp()
+    {
+        maxHitPoint++;
+        hitPoint = maxHitPoint;
+    }
+
+    public void SetLevel(int lvl)
+    {
+        for (int i = 0; i < lvl; i++)
+        {
+            OnLevelUp();
+        }
+    }
 }
