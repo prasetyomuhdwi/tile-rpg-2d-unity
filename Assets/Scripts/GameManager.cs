@@ -37,6 +37,7 @@ public class GameManager : MonoBehaviour
     public int coin;
     public int experience;
 
+    
     // floating text
     public void ShowText(string msg, int fontSize, Color color, Vector3 position, Vector3 motion, float duration)
     {
