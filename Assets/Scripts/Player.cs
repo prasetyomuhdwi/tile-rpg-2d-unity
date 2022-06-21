@@ -11,9 +11,7 @@ public class Player : Movement
     {
         base.Start();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        playerAnimator = GetComponent<Animator>();
-        
-        DontDestroyOnLoad(gameObject);
+        playerAnimator = GetComponent<Animator>();   
     }
 
     protected override void ReceiveDamage(Damage dmg)
@@ -38,6 +36,8 @@ public class Player : Movement
         {
             playerAnimator.SetBool("isHit",false);
         }
+
+        GameManager.instance.OnHitPointChange();
     }
 
     private void FixedUpdate()
@@ -64,6 +64,7 @@ public class Player : Movement
     {
         maxHitPoint++;
         hitPoint = maxHitPoint;
+        GameManager.instance.ShowText("Level UP!!", 40, Color.white, transform.position, Vector3.up * 30, 4.0f);
     }
 
     public void SetLevel(int lvl)
@@ -72,5 +73,17 @@ public class Player : Movement
         {
             OnLevelUp();
         }
+    }
+
+    public void Heal(int healingAmount)
+    {
+        if (hitPoint == maxHitPoint)
+            return;
+
+        hitPoint += healingAmount;
+        if (hitPoint > maxHitPoint)
+            hitPoint = maxHitPoint;
+        GameManager.instance.ShowText("+ " + healingAmount.ToString() + " hp", 30, Color.green, transform.position, Vector3.up * 30, 1.0f);
+        GameManager.instance.OnHitPointChange();
     }
 }

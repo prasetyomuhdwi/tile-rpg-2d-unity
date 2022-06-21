@@ -21,20 +21,6 @@ public class CharacterMenu : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
-    // Show Menu
-    public void ShowMenu()
-    {
-        animator.SetTrigger("show");
-        hudButton.interactable = false;
-    }
-
-    // hide menu
-    public void HideMenu()
-    {
-        animator.SetTrigger("hide");
-        hudButton.interactable = true;
-    }
-
     // Character Selection
     public void OnArrowClick(bool right)
     {
@@ -111,5 +97,21 @@ public class CharacterMenu : MonoBehaviour
             xpBar.localScale = new Vector3(completionRatio, 1, 1);
             xpText.text = currXpIntoLvl.ToString() + " / " + diff;
         }
+    }
+
+
+    // Show Menu
+    public void ShowMenu()
+    {
+        UpdateMenu();
+        animator.SetTrigger("show");
+        hudButton.interactable = false;
+    }
+
+    // hide menu
+    public void HideMenu()
+    {
+        animator.SetTrigger("hide");
+        hudButton.interactable = true;
     }
 }

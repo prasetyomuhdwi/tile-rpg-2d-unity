@@ -13,12 +13,17 @@ public class GameManager : MonoBehaviour
         if(GameManager.instance != null)
         {
             Destroy(gameObject);
+            Destroy(player.gameObject);
+            Destroy(FloatingTextManager.gameObject);
+            Destroy(hud);
+            Destroy(menu);
+            Destroy(transition.gameObject);
             return;
         }
 
         instance = this;
         SceneManager.sceneLoaded += LoadState;
-        DontDestroyOnLoad(gameObject);
+        SceneManager.sceneLoaded += OnSceneLoaded;
     }
 
     // Ressources
@@ -31,7 +36,19 @@ public class GameManager : MonoBehaviour
     public Player player;
     public Weapon weapon;
     public FloatingTextManager FloatingTextManager;
-    
+    public Transition transition;
+    public HealthBar healthBar;
+    public GameObject hud;
+    public GameObject menu;
+
+    // transition
+    public float transitionTime = 1f;
+    public string[] sceneNames;
+
+    private void Start()
+    {
+        healthBar.SetMaxHealth(GameManager.instance.player.maxHitPoint);
+    }
 
     // Logic
     public int coin;
@@ -58,6 +75,12 @@ public class GameManager : MonoBehaviour
             return true;
         }
         return false;   
+    }
+
+    // Hitpoint Bar
+    public void OnHitPointChange()
+    {
+        healthBar.SetHealth(player.hitPoint);
     }
 
     // Experience System
@@ -106,6 +129,28 @@ public class GameManager : MonoBehaviour
     public void OnLevelUp()
     {
         player.OnLevelUp();
+        OnHitPointChange();
+    }
+
+    public void ChangeLevel()
+    {   
+        StartCoroutine(LoadLevel());
+    }
+
+    IEnumerator LoadLevel()
+    {
+        transition.TriggerTransition();
+
+        yield return new WaitForSeconds(transitionTime);
+        
+        string sceneName = sceneNames[Random.Range(0, sceneNames.Length)];
+        SceneManager.LoadScene(sceneName);
+    }
+
+    // ON Scene Loaded
+    public void OnSceneLoaded(Scene s, LoadSceneMode mode)
+    {
+        player.transform.position = GameObject.Find("SpawnPoint").transform.position;
     }
 
     /* Save State
@@ -129,6 +174,8 @@ public class GameManager : MonoBehaviour
 
     public void LoadState(Scene s, LoadSceneMode mode)
     {
+        SceneManager.sceneLoaded -= LoadState;
+
         if (!PlayerPrefs.HasKey("SaveState"))
             return;
 
@@ -146,7 +193,6 @@ public class GameManager : MonoBehaviour
         
         // Weapon
         weapon.weaponLevel = int.Parse(data[3]);
-
-        player.transform.position = GameObject.Find("SpawnPoint").transform.position;
     }
+
 }
