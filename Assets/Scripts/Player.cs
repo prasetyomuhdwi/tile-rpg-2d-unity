@@ -6,6 +6,8 @@ public class Player : Movement
 {
     private Animator playerAnimator;
     private SpriteRenderer spriteRenderer;
+    public SkinChange skinChange;
+   
 
     protected override void Start()
     {
@@ -23,8 +25,8 @@ public class Player : Movement
             pushDirection = (transform.position - dmg.origin).normalized * dmg.pushForce;
 
             GameManager.instance.ShowText("- " + dmg.damageAmount.ToString(), 25, Color.red, transform.position, Vector3.zero, 0.5f);
-            
-            playerAnimator.SetBool("isHit", true);
+
+            // playerAnimator.SetBool("isHit", true);
 
             if (hitPoint <= 0)
             {
@@ -34,9 +36,10 @@ public class Player : Movement
         }
         else
         {
-            playerAnimator.SetBool("isHit",false);
+            // playerAnimator.SetBool("isHit",false);
         }
 
+        playerAnimator.SetTrigger("hit");
         GameManager.instance.OnHitPointChange();
     }
 
@@ -55,10 +58,21 @@ public class Player : Movement
         UpdateMovement(new Vector3(moveX, moveY, 0));
     }
 
+    // Skin
     public void SwapSprite(int skinId)
     {
-        spriteRenderer.sprite = GameManager.instance.playerSprites[skinId];
+        switch(skinId){
+            case 0:
+                skinChange.KnightMSKin();
+                break;
+            case 1:
+                skinChange.KnightFSKin();
+                break;
+        }
+        // spriteRenderer.sprite = GameManager.instance.playerSprites[skinId];
     }
+
+    
 
     public void OnLevelUp()
     {
@@ -86,4 +100,5 @@ public class Player : Movement
         GameManager.instance.ShowText("+ " + healingAmount.ToString() + " hp", 30, Color.green, transform.position, Vector3.up * 30, 1.0f);
         GameManager.instance.OnHitPointChange();
     }
+
 }
