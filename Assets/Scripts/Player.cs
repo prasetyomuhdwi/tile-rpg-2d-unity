@@ -69,14 +69,11 @@ public class Player : Movement
                 skinChange.KnightFSKin();
                 break;
         }
-        // spriteRenderer.sprite = GameManager.instance.playerSprites[skinId];
     }
-
-    
 
     public void OnLevelUp()
     {
-        maxHitPoint++;
+        maxHitPoint += GameManager.instance.GetCurrentLevel();
         hitPoint = maxHitPoint;
         GameManager.instance.ShowText("Level UP!!", 40, Color.white, transform.position, Vector3.up * 30, 4.0f);
     }

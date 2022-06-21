@@ -132,7 +132,7 @@ public class GameManager : MonoBehaviour
         OnHitPointChange();
     }
 
-    public void ChangeLevel()
+    public void ChangeScene()
     {   
         StartCoroutine(LoadLevel());
     }

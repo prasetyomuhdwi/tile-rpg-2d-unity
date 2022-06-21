@@ -13,7 +13,7 @@ public class Ledder : CollidableObjects
             GameManager.instance.SaveState();
             if (!isChange)
             {
-                GameManager.instance.ChangeLevel();
+                GameManager.instance.ChangeScene();
                 isChange = true;    
             }
         }
