@@ -38,6 +38,7 @@ public class GameManager : MonoBehaviour
     public FloatingTextManager FloatingTextManager;
     public Transition transition;
     public HealthBar healthBar;
+    public Animator deathAnimator;
     public GameObject hud;
     public GameObject menu;
 
@@ -151,6 +152,14 @@ public class GameManager : MonoBehaviour
     public void OnSceneLoaded(Scene s, LoadSceneMode mode)
     {
         player.transform.position = GameObject.Find("SpawnPoint").transform.position;
+    }
+
+    //Death Menu And Respawn
+    public void Respawn()
+    {
+        deathAnimator.SetTrigger("hide");
+        SceneManager.LoadScene(sceneNames[0]);
+        player.Respawn();
     }
 
     /* Save State

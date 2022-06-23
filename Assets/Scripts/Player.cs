@@ -7,6 +7,7 @@ public class Player : Movement
     private Animator playerAnimator;
     private SpriteRenderer spriteRenderer;
     public SkinChange skinChange;
+    private bool isAlive = true;
    
 
     protected override void Start()
@@ -18,6 +19,9 @@ public class Player : Movement
 
     protected override void ReceiveDamage(Damage dmg)
     {
+        if (!isAlive)
+            return;
+
         if (Time.time - lastImmune > immuneTIme)
         {
             lastImmune = Time.time;
@@ -42,6 +46,19 @@ public class Player : Movement
         playerAnimator.SetTrigger("hit");
         GameManager.instance.OnHitPointChange();
     }
+    protected override void Death()
+    {
+        isAlive = false;
+        GameManager.instance.deathAnimator.SetTrigger("show");
+    }
+
+    public void Respawn()
+    {
+        hitPoint = maxHitPoint;
+        isAlive = true;
+        lastImmune = Time.time;
+        pushDirection = Vector3.zero;
+    }
 
     private void FixedUpdate()
     {
@@ -49,13 +66,15 @@ public class Player : Movement
         float moveX = Input.GetAxisRaw("Horizontal");
         float moveY = Input.GetAxisRaw("Vertical");
 
-        if(Mathf.Abs(moveX) > 0 || Mathf.Abs(moveY) > 0)
-            playerAnimator.SetBool("isRun", true);
-        else
-            playerAnimator.SetBool("isRun", false);
+        if (isAlive)
+        {
+            if(Mathf.Abs(moveX) > 0 || Mathf.Abs(moveY) > 0)
+                playerAnimator.SetBool("isRun", true);
+            else
+                playerAnimator.SetBool("isRun", false);
 
-
-        UpdateMovement(new Vector3(moveX, moveY, 0));
+            UpdateMovement(new Vector3(moveX, moveY, 0));
+        }
     }
 
     // Skin

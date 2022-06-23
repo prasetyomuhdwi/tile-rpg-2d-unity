@@ -5,6 +5,8 @@ using UnityEngine;
 public abstract class Movement : Fighter
 {
     //Variables
+    private Vector3 originalSize;
+
     public float xSpeed = 2.85f;
     public float ySpeed = 3.0f;
 
@@ -14,6 +16,7 @@ public abstract class Movement : Fighter
 
     protected virtual void Start()
     {
+        originalSize = transform.localScale;
         boxCollider = GetComponent<BoxCollider2D>();
     }
 
@@ -26,9 +29,9 @@ public abstract class Movement : Fighter
 
         //Flip the player according to the move direction right or left
         if (moveDelta.x > 0)
-            transform.localScale = Vector3.one;
+            transform.localScale = originalSize;
         else if (moveDelta.x < 0)
-            transform.localScale = new Vector3(-1, 1, 1);
+            transform.localScale = new Vector3(originalSize.x * -1,originalSize.y,originalSize.z);
 
         // Add push vector, if any
         moveDelta += pushDirection;
