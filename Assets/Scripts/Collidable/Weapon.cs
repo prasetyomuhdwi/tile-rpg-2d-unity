@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Weapon : CollidableObjects
 {
@@ -13,9 +14,9 @@ public class Weapon : CollidableObjects
     private SpriteRenderer spriteRenderer;
 
     //Swing
-    private Animator animator;
-    private float cooldown = 0.5f;
-    private float lastSwing;
+    public Animator animator;
+    public float cooldown = 0.5f;
+    public float lastSwing;
 
     protected override void Start()
     {
@@ -24,21 +25,11 @@ public class Weapon : CollidableObjects
         animator = GetComponent<Animator>();
     }
 
+    
+
     protected override void Update()
     {
         base.Update();
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            if(Time.time - lastSwing > cooldown)
-            {
-                lastSwing = Time.time;
-                Swing();
-            }
-        }
-        else
-        {
-            animator.SetBool("isSwing", false);
-        }
     }
 
 
@@ -62,16 +53,10 @@ public class Weapon : CollidableObjects
         }
     }
 
-    private void Swing()
-    {
-        animator.SetBool("isSwing",true);
-    }
 
     public void UpgradeWeapon()
     {
         weaponLevel++;
         spriteRenderer.sprite = GameManager.instance.weaponSprites[weaponLevel];
-
-        // Change stats
     }
 }

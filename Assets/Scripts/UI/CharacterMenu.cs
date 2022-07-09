@@ -15,6 +15,9 @@ public class CharacterMenu : MonoBehaviour
     public RectTransform xpBar;
     private Animator animator;
     public Button hudButton;
+    
+    public bool isMenuShowed = false;
+
 
     private void Start()
     {
@@ -104,6 +107,7 @@ public class CharacterMenu : MonoBehaviour
     public void ShowMenu()
     {
         UpdateMenu();
+        isMenuShowed = true;
         animator.SetTrigger("show");
         hudButton.interactable = false;
     }
@@ -111,6 +115,7 @@ public class CharacterMenu : MonoBehaviour
     // hide menu
     public void HideMenu()
     {
+        isMenuShowed = false;
         animator.SetTrigger("hide");
         hudButton.interactable = true;
     }

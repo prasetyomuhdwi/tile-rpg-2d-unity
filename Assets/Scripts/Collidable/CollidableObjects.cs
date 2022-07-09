@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class CollidableObjects : MonoBehaviour
 {
-    private Collider2D[] hits = new Collider2D[10];
+    private Collider2D[] hits;
     private BoxCollider2D boxCollider;
     public ContactFilter2D filter;
 
@@ -12,6 +12,7 @@ public class CollidableObjects : MonoBehaviour
     protected virtual void Start()
     {
         boxCollider = GetComponent<BoxCollider2D>();
+        hits = new Collider2D[10];
     }
 
     // Update is called once per frame

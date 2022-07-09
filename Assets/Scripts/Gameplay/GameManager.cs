@@ -1,7 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 
 public class GameManager : MonoBehaviour
@@ -10,14 +12,13 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
+        playerInput = GetComponent<PlayerInput>();
+
         if(GameManager.instance != null)
         {
             Destroy(gameObject);
             Destroy(player.gameObject);
-            Destroy(FloatingTextManager.gameObject);
-            Destroy(hud);
-            Destroy(menu);
-            Destroy(transition.gameObject);
+            Destroy(ui);
             return;
         }
 
@@ -25,6 +26,8 @@ public class GameManager : MonoBehaviour
         SceneManager.sceneLoaded += LoadState;
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
+
+    
 
     // Ressources
     public List<Sprite> playerSprites;
@@ -35,12 +38,16 @@ public class GameManager : MonoBehaviour
     // References
     public Player player;
     public Weapon weapon;
+    public PlayerInput playerInput;
     public FloatingTextManager FloatingTextManager;
     public Transition transition;
     public HealthBar healthBar;
     public Animator deathAnimator;
-    public GameObject hud;
-    public GameObject menu;
+    public GameObject ui;
+
+    // Score
+    public Text scoreTxt;
+    private int scoreVal;
 
     // transition
     public float transitionTime = 1f;
@@ -49,6 +56,7 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         healthBar.SetMaxHealth(GameManager.instance.player.maxHitPoint);
+        scoreTxt.text = scoreVal.ToString();
     }
 
     // Logic
@@ -82,6 +90,28 @@ public class GameManager : MonoBehaviour
     public void OnHitPointChange()
     {
         healthBar.SetHealth(player.hitPoint);
+    }
+
+    // Score
+    public void GrantScore(string typeOfEnemy)
+    {
+        switch (typeOfEnemy)
+        {
+            case "medium":
+                scoreVal = Random.Range(4,10);
+                break;
+            case "boss":
+                scoreVal = Random.Range(10,20);
+                break;
+            case "special":
+                scoreVal = Random.Range(20,30);
+                break;
+            default:
+                scoreVal = Random.Range(2,4);
+                break;
+        }
+
+        scoreTxt.text = scoreVal.ToString();
     }
 
     // Experience System
@@ -151,7 +181,8 @@ public class GameManager : MonoBehaviour
     // ON Scene Loaded
     public void OnSceneLoaded(Scene s, LoadSceneMode mode)
     {
-        player.transform.position = GameObject.Find("SpawnPoint").transform.position;
+        if(player != null)
+            player.transform.position = GameObject.Find("SpawnPoint").transform.position;
     }
 
     //Death Menu And Respawn

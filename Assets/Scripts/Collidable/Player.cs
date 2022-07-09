@@ -1,20 +1,49 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Player : Movement
 {
     private Animator playerAnimator;
+
     private SpriteRenderer spriteRenderer;
     public SkinChange skinChange;
+    
     private bool isAlive = true;
-   
+
+    private PlayerInput playerInput;
+    private PlayerControls playerInputControls;
+
+    public Weapon weapon;
+    public CharacterMenu characterMenu;
+    public PauseMenu pauseMenu;
+
+    private void Awake()
+    {
+        playerInput = GetComponent<PlayerInput>();
+        
+        playerInputControls = new PlayerControls();
+        playerInputControls.Player.Attack.performed += context => Swing();
+        playerInputControls.Player.Menu.performed += context => ShowMenu();
+        playerInputControls.Player.Pause.performed += context => ShowPauseMenu();
+    }
 
     protected override void Start()
     {
         base.Start();
         spriteRenderer = GetComponent<SpriteRenderer>();
-        playerAnimator = GetComponent<Animator>();   
+        playerAnimator = GetComponent<Animator>();
+    }
+
+    private void OnEnable()
+    {
+        playerInputControls.Player.Enable();
+    }
+    private void OnDisable()
+    {
+        playerInputControls.Player.Disable();
     }
 
     protected override void ReceiveDamage(Damage dmg)
@@ -28,9 +57,7 @@ public class Player : Movement
             hitPoint -= dmg.damageAmount;
             pushDirection = (transform.position - dmg.origin).normalized * dmg.pushForce;
 
-            GameManager.instance.ShowText("- " + dmg.damageAmount.ToString(), 25, Color.red, transform.position, Vector3.zero, 0.5f);
-
-            // playerAnimator.SetBool("isHit", true);
+            GameManager.instance.ShowText("- " + dmg.damageAmount.ToString() + " HP", 35, Color.red, transform.position, Vector3.zero, 0.5f);
 
             if (hitPoint <= 0)
             {
@@ -54,7 +81,10 @@ public class Player : Movement
 
     public void Respawn()
     {
+        maxHitPoint -= GameManager.instance.GetCurrentLevel();
         hitPoint = maxHitPoint;
+        GameManager.instance.experience = 0;
+        GameManager.instance.coin = 0;
         isAlive = true;
         lastImmune = Time.time;
         pushDirection = Vector3.zero;
@@ -62,18 +92,50 @@ public class Player : Movement
 
     private void FixedUpdate()
     {
-        //Get the input X, Y
-        float moveX = Input.GetAxisRaw("Horizontal");
-        float moveY = Input.GetAxisRaw("Vertical");
-
+        Vector2 inputVector = playerInputControls.Player.Movement.ReadValue<Vector2>();
+        // Get the input X, Y
         if (isAlive)
         {
-            if(Mathf.Abs(moveX) > 0 || Mathf.Abs(moveY) > 0)
+            if (Mathf.Abs(inputVector.x) > 0 || Mathf.Abs(inputVector.y) > 0)
                 playerAnimator.SetBool("isRun", true);
             else
                 playerAnimator.SetBool("isRun", false);
 
-            UpdateMovement(new Vector3(moveX, moveY, 0));
+            UpdateMovement(new Vector3(inputVector.x, inputVector.y, 0));
+        }
+
+    }
+
+    void Swing()
+    {
+        if (Time.time - weapon.lastSwing > weapon.cooldown)
+        {
+            weapon.lastSwing = Time.time;
+            weapon.animator.SetTrigger("isSwing");
+        }
+    }
+    
+    void ShowMenu()
+    {
+        if (!characterMenu.isMenuShowed)
+        {  
+            characterMenu.ShowMenu();
+        }
+        else
+        {
+            characterMenu.HideMenu();
+        }
+    }
+
+    void ShowPauseMenu()
+    {
+        if (PauseMenu.GameisPaused)
+        {
+            pauseMenu.Resume();
+        }
+        else
+        {
+            pauseMenu.Pause();
         }
     }
 
@@ -113,7 +175,7 @@ public class Player : Movement
         hitPoint += healingAmount;
         if (hitPoint > maxHitPoint)
             hitPoint = maxHitPoint;
-        GameManager.instance.ShowText("+ " + healingAmount.ToString() + " hp", 30, Color.green, transform.position, Vector3.up * 30, 1.0f);
+        GameManager.instance.ShowText("+ " + healingAmount.ToString() + " hp", 35, Color.green, transform.position, Vector3.up * 30, 1.0f);
         GameManager.instance.OnHitPointChange();
     }
 

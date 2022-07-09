@@ -10,6 +10,10 @@ public class Enemy : Movement
     // experience
     public int xpValue = 1;
 
+    // Score
+    public int scoreAfterEnemyDie;
+    public string typeOfEnemy;
+
     // Logic
     public float triggerLenght = 3f;
     public float chaseLenght = 7f;
@@ -85,6 +89,7 @@ public class Enemy : Movement
     {
         Destroy(gameObject);
         GameManager.instance.GrantXp(xpValue);
-        GameManager.instance.ShowText("+ " + xpValue + " xp", 30, Color.magenta, transform.position, Vector3.up * 40, 1.0f);
+        GameManager.instance.GrantScore(typeOfEnemy);
+        GameManager.instance.ShowText("+ " + xpValue + " XP", 35, Color.magenta, transform.position, Vector3.up * 40, 1.0f);
     }
 }
