@@ -5,11 +5,13 @@ TagManager:
   serializedVersion: 2
   tags:
   - Fighter
+  - WaveSpawner
+  - Spawnpoint
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Collidable
   - Water
   - UI
   - Player
@@ -56,4 +58,7 @@ TagManager:
     locked: 0
   - name: Weapon
     uniqueID: 2843360715
+    locked: 0
+  - name: FX
+    uniqueID: 1850555759
     locked: 0

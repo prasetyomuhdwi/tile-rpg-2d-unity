@@ -21,13 +21,13 @@ public class GameManager : MonoBehaviour
             Destroy(ui);
             return;
         }
+        
+        gm = gameObject;
 
         instance = this;
         SceneManager.sceneLoaded += LoadState;
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
-
-    
 
     // Ressources
     public List<Sprite> playerSprites;
@@ -43,27 +43,42 @@ public class GameManager : MonoBehaviour
     public Transition transition;
     public HealthBar healthBar;
     public Animator deathAnimator;
+    public Text deathText;
+    public Text coinText;
     public GameObject ui;
+    
+    private GameObject cam;
+    private GameObject gm;
 
     // Score
     public Text scoreTxt;
     private int scoreVal;
+    public bool checkComplete = false;
 
     // transition
     public float transitionTime = 1f;
-    public string[] sceneNames;
 
     private void Start()
     {
         healthBar.SetMaxHealth(GameManager.instance.player.maxHitPoint);
         scoreTxt.text = scoreVal.ToString();
+        cam = GameObject.Find("Main Camera");
+        AudioManager.instance.PlayMusic("Explore");
     }
 
     // Logic
     public int coin;
     public int experience;
 
-    
+    private void Update()
+    {
+
+        if(int.Parse(coinText.text) != coin)
+        {
+            coinText.text = coin.ToString();
+        }
+    }
+
     // floating text
     public void ShowText(string msg, int fontSize, Color color, Vector3 position, Vector3 motion, float duration)
     {
@@ -90,6 +105,11 @@ public class GameManager : MonoBehaviour
     public void OnHitPointChange()
     {
         healthBar.SetHealth(player.hitPoint);
+
+        if(player.maxHitPoint != healthBar.slider.maxValue)
+        {
+            healthBar.SetMaxHealth(player.maxHitPoint);
+        }
     }
 
     // Score
@@ -98,16 +118,16 @@ public class GameManager : MonoBehaviour
         switch (typeOfEnemy)
         {
             case "medium":
-                scoreVal = Random.Range(4,10);
+                scoreVal += Random.Range(4,10);
                 break;
             case "boss":
-                scoreVal = Random.Range(10,20);
+                scoreVal += Random.Range(10,20);
                 break;
             case "special":
-                scoreVal = Random.Range(20,30);
+                scoreVal += Random.Range(20,30);
                 break;
             default:
-                scoreVal = Random.Range(2,4);
+                scoreVal += Random.Range(2,4);
                 break;
         }
 
@@ -163,33 +183,63 @@ public class GameManager : MonoBehaviour
         OnHitPointChange();
     }
 
-    public void ChangeScene()
+    public void ChangeScene(bool isBoss, bool isEnd)
     {   
-        StartCoroutine(LoadLevel());
+        StartCoroutine(LoadLevel(isBoss,isEnd));
     }
 
-    IEnumerator LoadLevel()
+    IEnumerator LoadLevel(bool isBoss,bool isEnd)
     {
         transition.TriggerTransition();
 
         yield return new WaitForSeconds(transitionTime);
-        
-        string sceneName = sceneNames[Random.Range(0, sceneNames.Length)];
-        SceneManager.LoadScene(sceneName);
+
+        if (!isBoss)
+        {
+            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex + 1);
+        }
+        else
+        {
+            checkComplete = true;
+            
+            if (isEnd)
+            {
+                Time.timeScale = 1f;
+
+                Destroy(ui);
+                Destroy(gameObject);
+                Destroy(cam);
+                Destroy(player);
+
+                AudioManager.instance.PlayMusic("Theme");
+                SceneManager.LoadScene(0);
+            }
+            else
+            {
+                AudioManager.instance.PlayMusic("Boss");
+                SceneManager.LoadScene(3);
+            }
+        }
     }
 
     // ON Scene Loaded
     public void OnSceneLoaded(Scene s, LoadSceneMode mode)
     {
         if(player != null)
-            player.transform.position = GameObject.Find("SpawnPoint").transform.position;
+            player.transform.position = GameObject.FindGameObjectWithTag("Spawnpoint").transform.position;
     }
 
     //Death Menu And Respawn
     public void Respawn()
     {
         deathAnimator.SetTrigger("hide");
-        SceneManager.LoadScene(sceneNames[0]);
+        
+        Destroy(cam);
+        Destroy(ui);
+        Destroy(player.gameObject);
+        Destroy(gm);
+
+        SceneManager.LoadScene(1);
         player.Respawn();
     }
 
@@ -218,6 +268,14 @@ public class GameManager : MonoBehaviour
 
         if (!PlayerPrefs.HasKey("SaveState"))
             return;
+
+        if (SceneManager.GetActiveScene().buildIndex == 1)
+            return;
+        
+        if (SceneManager.GetActiveScene().buildIndex == 3)
+        {
+            checkComplete = true;
+        }
 
         string[] data = PlayerPrefs.GetString("SaveState").Split('|');
 

@@ -19,8 +19,12 @@ public class Enemy : Movement
     public float chaseLenght = 7f;
     public bool chasing;
     private bool collidingWithPlayer;
-    private Transform playerTransform;
     private Vector3 startingPosition;
+
+    private Transform player;
+    private Vector3 target;
+    private float distance;
+    private float speed;
 
     // Hitbox
     public ContactFilter2D filter;
@@ -31,38 +35,49 @@ public class Enemy : Movement
     {
         base.Start();
         enemyAnimator = GetComponent<Animator>();
-        playerTransform = GameManager.instance.player.transform;
         startingPosition = transform.position;
         hitBox = transform.GetChild(0).GetComponent<BoxCollider2D>();
+        
+        player = GameManager.instance.player.transform;
 
     }
 
     protected void FixedUpdate()
     {
         // Is the player in range?
-        
-        if (Vector3.Distance(playerTransform.position, startingPosition) < chaseLenght)
-        {
+        distance = Vector2.Distance(transform.position, player.position);
+        Vector2 direction = player.position - transform.position;
+        direction.Normalize();
 
-            if (Vector3.Distance(playerTransform.position, startingPosition) < triggerLenght)
+        speed = ySpeed * xSpeed;
+
+        if ( distance <= chaseLenght)
+        {
+            target = player.position;
+
+            if (distance <= triggerLenght)
+            {
                 chasing = true;
+            }
 
             if (chasing)
             {
                 if (!collidingWithPlayer)
                 {
-                    UpdateMovement((playerTransform.position - transform.position).normalized);
+                    transform.position = Vector2.MoveTowards(this.transform.position,player.position,speed * Time.deltaTime);
                 }
-            }
-            else
-            {
-                UpdateMovement(startingPosition - transform.position);
             }
         }
         else
         {
-            UpdateMovement(startingPosition - transform.position);
-            chasing = false;
+            target = startingPosition;
+
+            transform.position = Vector2.MoveTowards(this.transform.position, startingPosition, speed * Time.deltaTime);
+
+            distance = Vector2.Distance(this.transform.position, startingPosition);
+
+            if (distance < 1)
+                chasing = false;
         }
 
         enemyAnimator.SetBool("isRun", chasing);
@@ -75,13 +90,25 @@ public class Enemy : Movement
             if (hits[1] == null)
                 continue;
 
-            if (hits[i].tag == "Fighter" && hits[i].name == "Player")
+            if (hits[i].tag == "Fighter")
             {
-                collidingWithPlayer = true;
+                if(hits[i].name == "Player")
+                {
+                    collidingWithPlayer = true;
+                }
             }
 
             // the array is not cleanedup, so we do it ourself
             hits[i] = null;
+        }
+
+        // flip enemy
+        if((transform.position.x - target.x) < 0f)
+        {
+            transform.localScale = Vector3.one;
+        }else if((transform.position.x - target.x) > 0f)
+        {
+            transform.localScale = new Vector3(-1f,1f,1f);
         }
     }
 
@@ -90,6 +117,7 @@ public class Enemy : Movement
         Destroy(gameObject);
         GameManager.instance.GrantXp(xpValue);
         GameManager.instance.GrantScore(typeOfEnemy);
-        GameManager.instance.ShowText("+ " + xpValue + " XP", 35, Color.magenta, transform.position, Vector3.up * 40, 1.0f);
+        GameManager.instance.ShowText("+ " + xpValue + " XP", 35, Color.yellow, transform.position, Vector3.up * 40, 1.5f);
     }
+
 }

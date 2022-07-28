@@ -25,13 +25,10 @@ public class Weapon : CollidableObjects
         animator = GetComponent<Animator>();
     }
 
-    
-
     protected override void Update()
     {
         base.Update();
     }
-
 
     protected override void OnCollided(Collider2D collided)
     {
@@ -52,7 +49,6 @@ public class Weapon : CollidableObjects
             
         }
     }
-
 
     public void UpgradeWeapon()
     {

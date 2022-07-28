@@ -6,17 +6,18 @@ using UnityEngine.Audio;
 
 public class OptionsMenu : MonoBehaviour
 {
-    public AudioMixer audioMixer;
     public Toggle toggleFullscreen;
+    public Slider slider;
 
     private void Start()
     {
         toggleFullscreen.isOn = false;
+        slider.value = AudioListener.volume;
     }
 
     public void setVolume (float volume)
     {
-        audioMixer.SetFloat("masterVolume", volume);
+        AudioManager.instance.changeMasterVolume(volume);
     }
 
     public void setFullscreen (bool isFullscreen)

@@ -7,7 +7,8 @@ public class DontDestroy : MonoBehaviour
 {
     private void Start()
     {
-        DontDestroyOnLoad(gameObject);
+        if(gameObject != null)
+            DontDestroyOnLoad(gameObject);
     }
 
 }

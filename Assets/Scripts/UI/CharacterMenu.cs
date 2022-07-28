@@ -18,7 +18,6 @@ public class CharacterMenu : MonoBehaviour
     
     public bool isMenuShowed = false;
 
-
     private void Start()
     {
         animator = GetComponent<Animator>();
@@ -101,7 +100,6 @@ public class CharacterMenu : MonoBehaviour
             xpText.text = currXpIntoLvl.ToString() + " / " + diff;
         }
     }
-
 
     // Show Menu
     public void ShowMenu()

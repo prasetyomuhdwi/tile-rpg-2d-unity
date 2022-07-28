@@ -16,14 +16,20 @@ public class Player : Movement
     private PlayerInput playerInput;
     private PlayerControls playerInputControls;
 
+    private int currlevel;
+
     public Weapon weapon;
     public CharacterMenu characterMenu;
     public PauseMenu pauseMenu;
+    public GameObject deathmenu;
+
+    public HighScore highScore;
 
     private void Awake()
     {
         playerInput = GetComponent<PlayerInput>();
-        
+        highScore = GetComponent<HighScore>();
+
         playerInputControls = new PlayerControls();
         playerInputControls.Player.Attack.performed += context => Swing();
         playerInputControls.Player.Menu.performed += context => ShowMenu();
@@ -33,8 +39,10 @@ public class Player : Movement
     protected override void Start()
     {
         base.Start();
+
         spriteRenderer = GetComponent<SpriteRenderer>();
         playerAnimator = GetComponent<Animator>();
+        currlevel = GameManager.instance.GetCurrentLevel();
     }
 
     private void OnEnable()
@@ -65,29 +73,30 @@ public class Player : Movement
                 Death();
             }
         }
-        else
-        {
-            // playerAnimator.SetBool("isHit",false);
-        }
 
         playerAnimator.SetTrigger("hit");
-        GameManager.instance.OnHitPointChange();
     }
     protected override void Death()
     {
+        highScore.setHighScore(int.Parse(GameManager.instance.scoreTxt.text));
+
         isAlive = false;
+        
+        maxHitPoint -= GameManager.instance.GetCurrentLevel();
+        hitPoint = maxHitPoint;
+        GameManager.instance.experience = 0;
+        GameManager.instance.coin = 0;
+        lastImmune = Time.time;
+        pushDirection = Vector3.zero;
+
+        deathmenu.SetActive(true);
         GameManager.instance.deathAnimator.SetTrigger("show");
     }
 
     public void Respawn()
     {
-        maxHitPoint -= GameManager.instance.GetCurrentLevel();
-        hitPoint = maxHitPoint;
-        GameManager.instance.experience = 0;
-        GameManager.instance.coin = 0;
+        deathmenu.SetActive(false);
         isAlive = true;
-        lastImmune = Time.time;
-        pushDirection = Vector3.zero;
     }
 
     private void FixedUpdate()
@@ -96,12 +105,38 @@ public class Player : Movement
         // Get the input X, Y
         if (isAlive)
         {
+            GameManager.instance.OnHitPointChange();
+
             if (Mathf.Abs(inputVector.x) > 0 || Mathf.Abs(inputVector.y) > 0)
                 playerAnimator.SetBool("isRun", true);
             else
                 playerAnimator.SetBool("isRun", false);
-
+            
+            if (GameManager.instance.GetCurrentLevel() > 1 && currlevel != GameManager.instance.GetCurrentLevel())
+            {
+                xSpeed += (0.1f * GameManager.instance.GetCurrentLevel());
+                ySpeed += (0.1f * GameManager.instance.GetCurrentLevel());
+                currlevel = GameManager.instance.GetCurrentLevel();
+            }
+            
             UpdateMovement(new Vector3(inputVector.x, inputVector.y, 0));
+          
+
+            if (GameManager.instance.checkComplete)
+            {
+                int enemy = GameObject.FindGameObjectsWithTag("Fighter").Length - 1;
+                
+                if (enemy == 0)
+                {
+                    GameObject leader_up = GameObject.Find("leader_up");
+                    leader_up.GetComponent<SpriteRenderer>().enabled = true;
+                    leader_up.GetComponent<EndGame>().enabled = true;
+                    leader_up.GetComponent<BoxCollider2D>().enabled = true;
+                    
+                    highScore.setHighScore(int.Parse(GameManager.instance.scoreTxt.text));
+                    GameManager.instance.ShowText("Congratulations you have completed this dugeon!!", 50, Color.white, new Vector3(-2.37f, 20.17f), Vector3.zero, 0.5f);
+                }
+            }
         }
 
     }
@@ -112,6 +147,7 @@ public class Player : Movement
         {
             weapon.lastSwing = Time.time;
             weapon.animator.SetTrigger("isSwing");
+            AudioManager.instance.PlayEffect("swing");
         }
     }
     
@@ -167,7 +203,7 @@ public class Player : Movement
         }
     }
 
-    public void Heal(int healingAmount)
+    public void Heal(float healingAmount)
     {
         if (hitPoint == maxHitPoint)
             return;
